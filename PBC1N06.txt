@@ -1,0 +1,168 @@
+000001*----------------------------------------------------------------*00000100
+000010 IDENTIFICATION DIVISION.                                         00001000
+000020*----------------------------------------------------------------*00002000
+000030 PROGRAM-ID. PBC1N06.                                             00003024
+000040 AUTHOR. JAVIER BEUZON.                                           00004001
+000050*                                                                 00005000
+000100* Programa de verificación de IBAN bancario                       00010024
+000200*----------------------------------------------------------------*00020000
+000300 ENVIRONMENT DIVISION.                                            00030000
+000400*----------------------------------------------------------------*00040000
+000401 CONFIGURATION SECTION.                                           00040100
+000402 INPUT-OUTPUT SECTION.                                            00040200
+000403 FILE-CONTROL.                                                    00040300
+000410                                                                  00041000
+000500*----------------------------------------------------------------*00050000
+000510 DATA DIVISION.                                                   00051000
+000600*----------------------------------------------------------------*00060000
+000601 FILE SECTION.                                                    00060100
+000602 WORKING-STORAGE SECTION.                                         00060200
+000603 01  WS-CONTANTES.                                                00060324
+000604     05 CTE-NOMPGM         PIC X(7)  VALUE 'PBC1N06'.             00060424
+000605     05 LIT-SPACE1         PIC X(1)  VALUE '0'.                   00060525
+000609 01  WS-VARIABLES.                                                00060924
+000610     05 COM-IBAN.                                                 00061024
+000611       10 COM-PAIS         PIC X(2).                              00061124
+000612       10 COM-DCTL         PIC X(2).                              00061224
+000613       10 COM-CCC          PIC X(30).                             00061324
+000614     05 AUX-IBAN           PIC X(34).                             00061424
+000615     05 AUX-IBAN-SUST      PIC X(36).                             00061524
+000616     05 AUX-QUOCIENT-CHARS PIC X(9).                              00061624
+000617     05 AUX-QUOCIENT-JUST  PIC X(9) JUST RIGHT.                   00061724
+000618     05 AUX-QUOCIENT       REDEFINES AUX-QUOCIENT-JUST PIC 9(9).  00061824
+000619     05 AUX-REST           PIC 9(2).                              00061924
+000620     05 AUX-REST-1         PIC 9(1).                              00062024
+000621 01  CONTADORES.                                                  00062124
+000622     05 AUX-I              PIC 9(2).                              00062224
+000623     05 AUX-J              PIC 9(2).                              00062324
+000624 01  TBL-AUXULIAR.                                                00062424
+000625     05 TBL-CONVERSION     PIC X(78) VALUE 'A10B11C12D13E14F15G16H00062524
+000626-    '17I18J19K20L21M22N23O24P25Q26R27S28T29U30V31W32X33T34Z35'.  00062624
+000627     05 TBL-R-CONVERSION REDEFINES TBL-CONVERSION OCCURS 26       00062724
+000628                         INDEXED BY AUX-INDEX.                    00062824
+000629        10 TBL-LETRA       PIC X(1).                              00062924
+000630        10 TBL-NUMERO      PIC X(2).                              00063025
+000631 01  SWITCHES.                                                    00063124
+000632     05 SW-END-IBAN        PIC 9  VALUE 0.                        00063224
+000633       88 NOT-END-IBAN            VALUE 0.                        00063324
+000640       88 YES-END-IBAN            VALUE 1.                        00064024
+000660                                                                  00066012
+000700*----------------------------------------------------------------*00070000
+000710 PROCEDURE DIVISION.                                              00071000
+000800*----------------------------------------------------------------*00080000
+000810     PERFORM 1000-INICIO                                          00081000
+000820     PERFORM 2000-PROCESS                                         00082000
+000830     PERFORM 3000-END                                             00083000
+000840     .                                                            00084000
+000850                                                                  00085000
+000851*------------*                                                    00085100
+000860 1000-INICIO.                                                     00086000
+000861*------------*                                                    00086100
+000862     INITIALIZE  WS-VARIABLES                                     00086201
+000863     MOVE 1  TO AUX-I                                             00086324
+000864                AUX-J                                             00086424
+000865                                                                  00086524
+000866     ACCEPT COM-IBAN                                              00086624
+000890     .                                                            00089001
+000900                                                                  00090000
+000910*------------*                                                    00091000
+001000 2000-PROCESS.                                                    00100000
+001010*------------*                                                    00101000
+001020     PERFORM 2100-REORDENAR-IBAN                                  00102024
+001021     PERFORM 2200-CONVERTIR-LETRAS                                00102124
+001022     PERFORM 2300-CALCULAR-RESTO                                  00102224
+001023                                                                  00102324
+001024     PERFORM 2400-DISPLAY-RESULTADO                               00102424
+001026     .                                                            00102607
+001030                                                                  00103007
+001040 2100-REORDENAR-IBAN.                                             00104024
+001041     STRING COM-CCC  DELIMITED BY SPACES                          00104124
+001042            COM-PAIS DELIMITED BY SIZE                            00104224
+001043            COM-DCTL DELIMITED BY SIZE                            00104324
+001044       INTO AUX-IBAN                                              00104424
+001045     END-STRING                                                   00104524
+001046     .                                                            00104624
+001047                                                                  00104724
+001050 2200-CONVERTIR-LETRAS.                                           00105024
+001051     PERFORM VARYING AUX-I FROM 1 BY 1 UNTIL AUX-I > 34           00105124
+001052        SET AUX-INDEX TO 1                                        00105224
+001053        SEARCH TBL-R-CONVERSION                                   00105324
+001054          AT END                                                  00105424
+001055             MOVE AUX-IBAN(AUX-I:1) TO AUX-IBAN-SUST(AUX-J:1)     00105524
+001056             ADD 1 TO AUX-J                                       00105624
+001057          WHEN AUX-IBAN(AUX-I:1) = TBL-LETRA(AUX-INDEX)           00105724
+001058*            NEXT SENTENCE                                        00105824
+001059             MOVE TBL-NUMERO(AUX-INDEX) TO AUX-IBAN-SUST(AUX-J:2) 00105924
+001060             ADD 2 TO AUX-J                                       00106024
+001061        END-SEARCH                                                00106124
+001062     END-PERFORM                                                  00106224
+001063     .                                                            00106324
+001064                                                                  00106424
+001065 2300-CALCULAR-RESTO.                                             00106524
+001066     MOVE 1 TO AUX-J                                              00106624
+001067                                                                  00106724
+001068     PERFORM 2310-PRIMER-RESTO                                    00106824
+001069     PERFORM 2320-RESTO-RESTOS UNTIL YES-END-IBAN                 00106924
+001073     .                                                            00107324
+001074                                                                  00107424
+001075 2310-PRIMER-RESTO.                                               00107524
+001076     MOVE AUX-IBAN-SUST(AUX-J:9) TO AUX-QUOCIENT                  00107624
+001077     ADD 9 TO AUX-J                                               00107724
+001078                                                                  00107824
+001079     COMPUTE AUX-REST = FUNCTION MOD(AUX-QUOCIENT 97)             00107924
+001080     .                                                            00108024
+001081                                                                  00108124
+001082 2320-RESTO-RESTOS.                                               00108224
+001083     MOVE SPACES TO AUX-QUOCIENT-CHARS                            00108324
+001084                                                                  00108424
+001085     IF AUX-REST < 10                                             00108524
+001086        MOVE AUX-REST TO AUX-REST-1                               00108624
+001087        STRING AUX-REST-1             DELIMITED BY SIZE           00108724
+001088               AUX-IBAN-SUST(AUX-J:8) DELIMITED BY SPACES         00108824
+001089          INTO AUX-QUOCIENT-CHARS                                 00108924
+001090        END-STRING                                                00109024
+001091        ADD 8 TO AUX-J                                            00109124
+001092     ELSE                                                         00109224
+001093        STRING AUX-REST               DELIMITED BY SIZE           00109324
+001094               AUX-IBAN-SUST(AUX-J:8) DELIMITED BY SPACES         00109424
+001095          INTO AUX-QUOCIENT-CHARS                                 00109524
+001096        END-STRING                                                00109624
+001097        ADD 7 TO AUX-J                                            00109724
+001098     END-IF                                                       00109824
+001099                                                                  00109924
+001100     UNSTRING AUX-QUOCIENT-CHARS DELIMITED BY SPACES              00110024
+001101         INTO AUX-QUOCIENT-JUST                                   00110124
+001102     END-UNSTRING                                                 00110225
+001103                                                                  00110324
+001104     INSPECT AUX-QUOCIENT-JUST REPLACING ALL SPACES BY ZEROES     00110424
+001105                                                                  00110524
+001106     COMPUTE AUX-REST = FUNCTION MOD(AUX-QUOCIENT 97)             00110624
+001107                                                                  00110724
+001108     IF AUX-IBAN-SUST(AUX-J:1) = LIT-SPACE1 OR AUX-J = 36         00110824
+001109        SET YES-END-IBAN TO TRUE                                  00110924
+001110     END-IF                                                       00111024
+001111     .                                                            00111124
+001112                                                                  00111224
+001120 2400-DISPLAY-RESULTADO.                                          00112024
+001200     MOVE 0 TO AUX-J                                              00120027
+001300                                                                  00130024
+001301     INSPECT COM-IBAN TALLYING AUX-J FOR ALL SPACES               00130127
+001302     COMPUTE AUX-J = 34 - AUX-J                                   00130228
+001303                                                                  00130327
+001304     DISPLAY 'COM-IBAN = ' COM-IBAN                               00130427
+001305                                                                  00130527
+001310     IF AUX-REST = 1                                              00131024
+001320        DISPLAY 'El IBAN ' COM-IBAN(1:AUX-J)                      00132027
+001321                'es válido'                                       00132127
+001322     ELSE                                                         00132224
+001323        DISPLAY 'El IBAN ' COM-IBAN(1:AUX-J)                      00132324
+001324                ' no es válido! Resto = ' AUX-REST                00132424
+001325     END-IF                                                       00132524
+001326     .                                                            00132624
+001327                                                                  00132720
+001330*------------*                                                    00133015
+001400 3000-END.                                                        00140015
+001500*------------*                                                    00150015
+001720     GOBACK.                                                      00172024
+001800                                                                  00180000
+
