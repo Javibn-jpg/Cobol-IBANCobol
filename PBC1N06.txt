@@ -4,7 +4,7 @@
 000030 PROGRAM-ID. PBC1N06.                                             00003024
 000040 AUTHOR. JAVIER BEUZON.                                           00004001
 000050*                                                                 00005000
-000100* Programa de verificaciÛn de IBAN bancario                       00010024
+000100* Programa de verificaci√≥n de IBAN bancario                       00010024
 000200*----------------------------------------------------------------*00020000
 000300 ENVIRONMENT DIVISION.                                            00030000
 000400*----------------------------------------------------------------*00040000
@@ -37,7 +37,7 @@
 000623     05 AUX-J              PIC 9(2).                              00062324
 000624 01  TBL-AUXULIAR.                                                00062424
 000625     05 TBL-CONVERSION     PIC X(78) VALUE 'A10B11C12D13E14F15G16H00062524
-000626-    '17I18J19K20L21M22N23O24P25Q26R27S28T29U30V31W32X33T34Z35'.  00062624
+000626-    '17I18J19K20L21M22N23O24P25Q26R27S28T29U30V31W32X33Y34Z35'.  00062624
 000627     05 TBL-R-CONVERSION REDEFINES TBL-CONVERSION OCCURS 26       00062724
 000628                         INDEXED BY AUX-INDEX.                    00062824
 000629        10 TBL-LETRA       PIC X(1).                              00062924
@@ -153,10 +153,10 @@
 001305                                                                  00130527
 001310     IF AUX-REST = 1                                              00131024
 001320        DISPLAY 'El IBAN ' COM-IBAN(1:AUX-J)                      00132027
-001321                'es v·lido'                                       00132127
+001321                'es v√°lido'                                       00132127
 001322     ELSE                                                         00132224
 001323        DISPLAY 'El IBAN ' COM-IBAN(1:AUX-J)                      00132324
-001324                ' no es v·lido! Resto = ' AUX-REST                00132424
+001324                ' no es v√°lido! Resto = ' AUX-REST                00132424
 001325     END-IF                                                       00132524
 001326     .                                                            00132624
 001327                                                                  00132720
@@ -165,4 +165,5 @@
 001500*------------*                                                    00150015
 001720     GOBACK.                                                      00172024
 001800                                                                  00180000
+
 
